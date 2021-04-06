@@ -1,8 +1,10 @@
 """This module implements uploading videos on YouTube via Selenium using metadata JSON file
     to extract its title, description etc."""
 
-from typing import DefaultDict, Optional
+from typing import DefaultDict, Optional, Tuple
 from selenium_firefox.firefox import Firefox, By, Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from collections import defaultdict
 import json
 import time
@@ -10,24 +12,16 @@ from .Constant import *
 from pathlib import Path
 import logging
 
-logging.basicConfig()
-
-
-def load_metadata(metadata_json_path: Optional[str] = None) -> DefaultDict[str, str]:
-    if metadata_json_path is None:
-        return defaultdict(str)
-    with open(metadata_json_path) as metadata_json_file:
-        return defaultdict(str, json.load(metadata_json_file))
-
+from selenium.webdriver.remote.remote_connection import LOGGER
+LOGGER.setLevel(logging.WARNING)
 
 class YouTubeUploader:
     """A class for uploading videos on YouTube via Selenium using metadata JSON file
     to extract its title, description etc"""
 
-    def __init__(self, video_path: str, metadata_json_path: Optional[str] = None, thumbnail_path: Optional[str] = None) -> None:
+    def __init__(self, video_path: str, metadata_dict: Optional[defaultdict] = None) -> None:
         self.video_path = video_path
-        self.thumbnail_path = thumbnail_path
-        self.metadata_dict = load_metadata(metadata_json_path)
+        self.metadata_dict = metadata_dict
         current_working_dir = str(Path.cwd())
         self.browser = Firefox(current_working_dir, current_working_dir)
         self.logger = logging.getLogger(__name__)
@@ -70,11 +64,11 @@ class YouTubeUploader:
         field.click()
         time.sleep(Constant.USER_WAITING_TIME)
         if select_all:
-            field.send_keys(Keys.COMMAND + 'a')
+            field.clear()
             time.sleep(Constant.USER_WAITING_TIME)
         field.send_keys(string)
 
-    def __upload(self) -> (bool, Optional[str]):
+    def __upload(self) -> Tuple[bool, Optional[str]]:
         self.browser.get(Constant.YOUTUBE_URL)
         time.sleep(Constant.USER_WAITING_TIME)
         self.browser.get(Constant.YOUTUBE_UPLOAD_URL)
@@ -83,22 +77,20 @@ class YouTubeUploader:
         self.browser.find(By.XPATH, Constant.INPUT_FILE_VIDEO).send_keys(absolute_video_path)
         self.logger.debug('Attached video {}'.format(self.video_path))
 
-        if self.thumbnail_path is not None:
-            absolute_thumbnail_path = str(Path.cwd() / self.thumbnail_path)
+        if self.metadata_dict['thumbnail_path']:
+            absolute_thumbnail_path = str(Path.cwd() / self.metadata_dict['thumbnail_path'])
             self.browser.find(By.XPATH, Constant.INPUT_FILE_THUMBNAIL).send_keys(absolute_thumbnail_path)
             change_display = "document.getElementById('file-loader').style = 'display: block! important'"
             self.browser.driver.execute_script(change_display)
-            self.logger.debug('Attached thumbnail {}'.format(self.thumbnail_path))
+            self.logger.debug('Attached thumbnail {}'.format(self.metadata_dict['thumbnail_path']))
 
-        title_field = self.browser.find(By.ID, Constant.TEXTBOX, timeout=10)
+        title_field = self.browser.find(By.XPATH, Constant.TITLE, timeout=10)
         self.__write_in_field(title_field, self.metadata_dict[Constant.VIDEO_TITLE], select_all=True)
         self.logger.debug('The video title was set to \"{}\"'.format(self.metadata_dict[Constant.VIDEO_TITLE]))
 
         video_description = self.metadata_dict[Constant.VIDEO_DESCRIPTION]
         if video_description:
-            description_container = self.browser.find(By.XPATH,
-                                                      Constant.DESCRIPTION_CONTAINER)
-            description_field = self.browser.find(By.ID, Constant.TEXTBOX, element=description_container)
+            description_field = self.browser.find(By.XPATH, Constant.DESCRIPTION)
             self.__write_in_field(description_field, self.metadata_dict[Constant.VIDEO_DESCRIPTION])
             self.logger.debug(
                 'The video description was set to \"{}\"'.format(self.metadata_dict[Constant.VIDEO_DESCRIPTION]))
@@ -110,19 +102,14 @@ class YouTubeUploader:
         # Advanced options
         self.browser.find(By.XPATH, Constant.MORE_BUTTON).click()
         self.logger.debug('Clicked MORE OPTIONS')
-
-        tags_container = self.browser.find(By.XPATH,
-                                                    Constant.TAGS_INPUT_CONTAINER)
-        tags_field = self.browser.find(By.ID, Constant.TAGS_INPUT, element=tags_container)
+        tags_field = self.browser.find(By.XPATH, Constant.TAGS_INPUT_CONTAINER)
         self.__write_in_field(tags_field, ','.join(self.metadata_dict[Constant.VIDEO_TAGS]))
         self.logger.debug(
             'The tags were set to \"{}\"'.format(self.metadata_dict[Constant.VIDEO_TAGS]))
 
-        self.browser.find(By.ID, Constant.NEXT_BUTTON).click()
-        self.logger.debug('Clicked {}'.format(Constant.NEXT_BUTTON))
-
-        self.browser.find(By.ID, Constant.NEXT_BUTTON).click()
-        self.logger.debug('Clicked another {}'.format(Constant.NEXT_BUTTON))
+        while not self.browser.find(By.NAME, Constant.PUBLIC_BUTTON, timeout=5):
+            self.browser.find(By.ID, Constant.NEXT_BUTTON).click()
+            self.logger.debug('Clicked {}'.format(Constant.NEXT_BUTTON))
 
         public_main_button = self.browser.find(By.NAME, Constant.PUBLIC_BUTTON)
         self.browser.find(By.ID, Constant.RADIO_LABEL, public_main_button).click()

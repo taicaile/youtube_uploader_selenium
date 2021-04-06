@@ -7,18 +7,24 @@ class Constant:
     VIDEO_TITLE = 'title'
     VIDEO_DESCRIPTION = 'description'
     VIDEO_TAGS = 'tags'
-    DESCRIPTION_CONTAINER = '/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/' \
-                            'ytcp-uploads-details/div/ytcp-uploads-basics/ytcp-mention-textbox[2]'
+    THUMBNAIL_PATH = 'thumbnail_path'
+
+    TITLE = '//*[@id="textbox"][@aria-required="true"]'
+    DESCRIPTION = '//*[@id="textbox"][@aria-required="false"]'
+
     TEXTBOX = 'textbox'
     TEXT_INPUT = 'text-input'
     RADIO_LABEL = 'radioLabel'
-    STATUS_CONTAINER = '/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[2]/' \
-                       'div/div[1]/ytcp-video-upload-progress/span'
+    STATUS_CONTAINER = '//span[contains(concat(" ",normalize-space(@class)," ")," ytcp-video-upload-progress ")]'
     NOT_MADE_FOR_KIDS_LABEL = 'NOT_MADE_FOR_KIDS'
-    MORE_BUTTON = '/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-uploads-details/div/div/ytcp-button'
-    TAGS_INPUT_CONTAINER = '/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-uploads-details/div/ytcp-uploads-advanced/ytcp-form-input-container/div[1]/div[2]/ytcp-free-text-chip-bar/ytcp-chip-bar/div'
+    MORE_BUTTON = '//ytcp-button[contains(concat(" ",normalize-space(@class)," ")," ytcp-video-metadata-editor ")]'
+    TAGS_INPUT_CONTAINER = '//input[@id="text-input"][@aria-label="Tags"]'
     TAGS_INPUT = 'text-input'
     NEXT_BUTTON = 'next-button'
+    H1_DETAILS = '//h1[contains(concat(" ",normalize-space(@class)," ")," ytcp-uploads-dialog ")]'
+    H1_CHECKS = '//h1[contains(concat(" ",normalize-space(@class)," ")," ytcp-uploads-checks ")]'
+    H1_VIDEO_ELEMENTS = '//h1[contains(concat(" ",normalize-space(@class)," ")," ytcp-uploads-video-elements ")]'
+
     PUBLIC_BUTTON = 'PUBLIC'
     VIDEO_URL_CONTAINER = "//span[@class='video-url-fadeable style-scope ytcp-video-info']"
     VIDEO_URL_ELEMENT = "//a[@class='style-scope ytcp-video-info']"
