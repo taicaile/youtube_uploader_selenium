@@ -60,10 +60,10 @@ class YouTubeUploader:
             time.sleep(Constant.USER_WAITING_TIME)
             self.browser.save_cookies()
 
-    def __write_in_field(self, field, string, select_all=False):
+    def __write_in_field(self, field, string, clear=False):
         field.click()
         time.sleep(Constant.USER_WAITING_TIME)
-        if select_all:
+        if clear:
             field.clear()
             time.sleep(Constant.USER_WAITING_TIME)
         field.send_keys(string)
@@ -85,7 +85,7 @@ class YouTubeUploader:
             self.logger.debug('Attached thumbnail {}'.format(self.metadata_dict['thumbnail_path']))
 
         title_field = self.browser.find(By.XPATH, Constant.TITLE, timeout=10)
-        self.__write_in_field(title_field, self.metadata_dict[Constant.VIDEO_TITLE], select_all=True)
+        self.__write_in_field(title_field, self.metadata_dict[Constant.VIDEO_TITLE], clear=True)
         self.logger.debug('The video title was set to \"{}\"'.format(self.metadata_dict[Constant.VIDEO_TITLE]))
 
         video_description = self.metadata_dict[Constant.VIDEO_DESCRIPTION]
@@ -103,7 +103,7 @@ class YouTubeUploader:
         self.browser.find(By.XPATH, Constant.MORE_BUTTON).click()
         self.logger.debug('Clicked MORE OPTIONS')
         tags_field = self.browser.find(By.XPATH, Constant.TAGS_INPUT_CONTAINER)
-        self.__write_in_field(tags_field, ','.join(self.metadata_dict[Constant.VIDEO_TAGS]))
+        self.__write_in_field(tags_field, self.metadata_dict[Constant.VIDEO_TAGS], clear=True)
         self.logger.debug(
             'The tags were set to \"{}\"'.format(self.metadata_dict[Constant.VIDEO_TAGS]))
 
