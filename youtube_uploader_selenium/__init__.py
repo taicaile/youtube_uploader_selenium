@@ -1,18 +1,20 @@
 """This module implements uploading videos on YouTube via Selenium using metadata JSON file
     to extract its title, description etc."""
 
-from typing import DefaultDict, Optional, Tuple
-from selenium_firefox.firefox import Firefox, By, Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from collections import defaultdict
 import json
-import time
-from .Constant import *
-from pathlib import Path
 import logging
+import time
+from collections import defaultdict
+from pathlib import Path
+from typing import DefaultDict, Optional, Tuple
 
 from selenium.webdriver.remote.remote_connection import LOGGER
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium_firefox.firefox import By, Firefox, Keys
+
+from .Constant import *
+
 LOGGER.setLevel(logging.WARNING)
 
 class YouTubeUploader:
