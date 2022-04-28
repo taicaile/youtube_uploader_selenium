@@ -1,9 +1,12 @@
 import argparse
 import json
+import logging
 from collections import defaultdict
 from typing import DefaultDict, Optional
 
-from .youtube_uploader_selenium import YouTubeUploader
+from youtube_selenium import YouTubeUploader
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def load_metadata(metadata_json_path: Optional[str] = None) -> DefaultDict[str, str]:
@@ -22,7 +25,6 @@ def main(video_path: str, metadict: Optional[defaultdict] = None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--video", help="Path to the video file", required=True)
-
     parser.add_argument("--meta", help="Path to the JSON file with metadata")
     args = parser.parse_args()
     metadict = load_metadata(args.meta)
